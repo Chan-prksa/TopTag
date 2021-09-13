@@ -12,7 +12,7 @@ hashtagApp.controller('D3Controller',['$scope', 'ioFactory', function( $scope, i
 
     ioFactory.io().then(function(io){
 
-        var socket=io('http://ec2-54-201-43-90.us-west-2.compute.amazonaws.com:3000');
+        var socket=io('http://ec2-3-144-125-91.us-east-2.compute.amazonaws.com:3000');
         socket.on('server', function (data) {
             socket.emit('browser', {});
         });
