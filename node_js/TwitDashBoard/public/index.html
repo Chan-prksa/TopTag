@@ -165,14 +165,16 @@
       });
       //display messages sent by the server
       socket.on('topTags', function(data) {
-        console.log('received topTags: ' + data);
+        console.log('received topTags: ');
+        console.log(data);
         // Add the message to the page.
         processTagCountJSON(data);
         //$('#json1').html(JSON.stringify(data));
       });
 
       socket.on('topTagByLangs', function(data) {
-        console.log('received topTagByLangs: ' + data);
+        console.log('received topTagByLangs: ');
+        console.log(data);
         // Add the message to the page.
         //$('#json2').html(JSON.stringify(data));
         processLangCountJSON(data);                
