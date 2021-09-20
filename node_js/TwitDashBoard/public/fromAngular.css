@@ -31,7 +31,10 @@ body {
 
 
 svg {
+  display: block;
   font: 10px sans-serif;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .axis path, .axis line {

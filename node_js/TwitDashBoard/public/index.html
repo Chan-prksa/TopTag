@@ -264,7 +264,7 @@ var hashTableD3 = {}
 
     $(function () {
       //Socket.io
-      var socket = io("ec2-3-144-125-91.us-east-2.compute.amazonaws.com:3000");
+      var socket = io();
       //Acknowledge
       socket.on('server', function (data) {
         console.log(data);
