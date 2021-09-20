@@ -4,6 +4,7 @@
     <title>Popular Hashtags and their Language Usage</title>
     <link href='http://fonts.googleapis.com/css?family=Playfair+Display:400,700,900,400italic,700italic,900italic|Droid+Serif:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="newspaper.css">
+    <link rel="stylesheet" href="fromAngular.css">
     <!-- link rel="stylesheet" type="text/css" href="jquery.dynatable.css" media="screen" /-->
 </head>
 <body>
@@ -13,16 +14,8 @@
 
    <div style="margin: 20px auto; line-height: 20px;">
      <div class="subhead">Top Hashtags Globally</div>
-     <table id="tagRanking" >
-        <thead>
-          <tr class="header">
-            <th>Tag</th>
-            <th>Count</th>
-          </tr>
-        </thead>
-        <tbody>
-        </tbody>
-      </table>
+     <svg id="lang-all" >
+     </svg>
   </div>
 
     <div class="subhead">Top Hashtags By Language</div>
@@ -54,7 +47,7 @@
 <script type="text/javascript">
 
     
-  var langISO = [{"code":"fr","status":"production","name":"French"},{"code":"en","status":"production","name":"English"},{"code":"ar","status":"production","name":"Arabic"},{"code":"ja","status":"production","name":"Japanese"},{"code":"es","status":"production","name":"Spanish"},{"code":"de","status":"production","name":"German"},{"code":"it","status":"production","name":"Italian"},{"code":"id","status":"production","name":"Indonesian"},{"code":"pt","status":"production","name":"Portuguese"},{"code":"ko","status":"production","name":"Korean"},{"code":"tr","status":"production","name":"Turkish"},{"code":"ru","status":"production","name":"Russian"},{"code":"nl","status":"production","name":"Dutch"},{"code":"fil","status":"production","name":"Filipino"},{"code":"msa","status":"production","name":"Malay"},{"code":"zh-tw","status":"production","name":"Traditional Chinese"},{"code":"zh-cn","status":"production","name":"Simplified Chinese"},{"code":"hi","status":"production","name":"Hindi"},{"code":"no","status":"production","name":"Norwegian"},{"code":"sv","status":"production","name":"Swedish"},{"code":"fi","status":"production","name":"Finnish"},{"code":"da","status":"production","name":"Danish"},{"code":"pl","status":"production","name":"Polish"},{"code":"hu","status":"production","name":"Hungarian"},{"code":"fa","status":"production","name":"Farsi"},{"code":"he","status":"production","name":"Hebrew"},{"code":"ur","status":"production","name":"Urdu"},{"code":"th","status":"production","name":"Thai"},{"code":"en-gb","status":"production","name":"English UK"}] ;
+  var langISO = [{"code":"fr","status":"production","name":"French"},{"code":"en","status":"production","name":"English"},{"code":"th","status":"production","name":"Thai"},{"code":"ja","status":"production","name":"Japanese"},{"code":"es","status":"production","name":"Spanish"},{"code":"de","status":"production","name":"German"},{"code":"it","status":"production","name":"Italian"},{"code":"id","status":"production","name":"Indonesian"},{"code":"pt","status":"production","name":"Portuguese"},{"code":"ko","status":"production","name":"Korean"},{"code":"tr","status":"production","name":"Turkish"},{"code":"ru","status":"production","name":"Russian"},{"code":"nl","status":"production","name":"Dutch"},{"code":"fil","status":"production","name":"Filipino"},{"code":"msa","status":"production","name":"Malay"},{"code":"zh-tw","status":"production","name":"Traditional Chinese"},{"code":"zh-cn","status":"production","name":"Simplified Chinese"},{"code":"hi","status":"production","name":"Hindi"},{"code":"no","status":"production","name":"Norwegian"},{"code":"sv","status":"production","name":"Swedish"},{"code":"fi","status":"production","name":"Finnish"},{"code":"da","status":"production","name":"Danish"},{"code":"pl","status":"production","name":"Polish"},{"code":"hu","status":"production","name":"Hungarian"},{"code":"fa","status":"production","name":"Farsi"},{"code":"he","status":"production","name":"Hebrew"},{"code":"ur","status":"production","name":"Urdu"},{"code":"ar","status":"production","name":"Arabic"},{"code":"en-gb","status":"production","name":"English UK"}] ;
   var blackList = new Set();
   blackList.add("ht");
   blackList.add("und");
@@ -70,11 +63,20 @@
   blackList.add("ta");
   blackList.add("lt");
 
+  var whiteList = new Set();
+  for(i=0; i < langISO.length; ++i){
+    whiteList.add(langISO[i].code);
+  }
+
   String.prototype.repeat = function(times) {
    return (new Array(times + 1)).join(this);
   };
 
 var hashTableD3 = {}
+
+  // Intialization for the Global case
+  var id = 'lang-all';
+  initializeAndSaveVarD3(id);
 
   for(i=0; i < langISO.length; ++i) {
     
@@ -82,12 +84,49 @@ var hashTableD3 = {}
 
     var id = 'lang-'+langISO[i].code;
 
-    var $div = $('<div class="collumn" style="display: inline-block"><span class="headline hl4"></span><svg id="'+ id +'" margin-top="20" margin-right="40" margin-bottom="10" margin-left="170" canvas-width="400"></svg></div>');
+    var $div = $('<div class="collumn" style="display: inline-block"><span class="headline hl4"></span><svg id="'+ id +'" ></svg></div>');
     $('#langBreakDown').append($div);
     $div.find('span').text(langISO[i].name);
-    /*Initialize svg, x, y before saving them*/
-    var svg = d3.select('#' + id);
-    hashTableD3[id] = {'svg': svg, 'x': null, 'y': null}  
+    /*Initialize svg, x, y and save them*/
+     initializeAndSaveVarD3(id); 
+  }
+
+  function initializeAndSaveVarD3(id) {
+    var marginTop=20, marginRight=40, marginBottom=10, marginLeft=170, canvasWidth=400;
+
+    var format = d3.format(",");    
+    var margin = {
+                    top: marginTop, 
+                    right: marginRight, 
+                    bottom: marginBottom, 
+                    left: marginLeft
+                  };
+    var width =  canvasWidth;
+    var height = 200 - margin.top - margin.bottom;
+    var y = d3.scale.ordinal()
+              .rangeRoundBands([0, height], .1);
+    var x = d3.scale.linear().range([0, width]);
+    var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("top")
+    .tickSize(-height - margin.bottom)
+    .tickFormat(format);
+
+    var svg = d3.select('#' + id)
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                /*.style("margin-left", -margin.left + "px")*/
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    svg.append("g").attr("class", "x axis");
+    svg.append("g")
+      .attr("class", "y axis")
+      .append("line")
+      .attr("class", "domain")
+      .attr("y2", height);
+
+    hashTableD3[id] = {'svg': svg, 'format': format, 'height': height, 'x': x, 'y': y, 'xAxis': xAxis};
   }
 
   //console.log(langFullName);
@@ -121,15 +160,83 @@ var hashTableD3 = {}
 
   function setSVG(data, varD3) {
     var svg = varD3['svg'];
+    var format = varD3['format'];
+    var height = varD3['height'];
     var x = varD3['x'];
     var y = varD3['y'];
+    var xAxis = varD3['xAxis']
 
-    console.log("Inside setSVG");
-    console.log(svg.attr("id"))
+    d3.transition().duration(2000).each(function(){
+      if(!data || data.length != 10) return;
+
+      var maxValue = 0;
+      data.forEach(function(d){
+        maxValue =  Math.max(parseInt(d.count), maxValue);
+      });
+      x.domain([0, (maxValue>5?maxValue:5)]);
+      y.domain(data.map(function(d) { return d.tag; }));
+
+      var bar = svg.selectAll(".bar")
+          .data(data, function(d) { return d.tag; });
+
+      var barEnter = bar.enter().insert("g", ".axis")
+          .attr("class", "bar")
+          .attr("transform", function(d) { return "translate(0," + (y(d.tag) + height) + ")"; })
+          .style("fill-opacity", 0);
+      
+      barEnter.append("rect")
+          .attr("width", function(d) {return x(parseInt(d.count)); })
+          .attr("height", y.rangeBand());
+
+      barEnter.append("text")
+          .attr("class", "label")
+          .attr("x", -10)
+          .attr("y", y.rangeBand() / 2)
+          .attr("dy", ".35em")
+          .attr("text-anchor", "end")
+          .text(function(d) { return d.tag; });
+
+      barEnter.append("text")
+          .attr("class", "value")
+          .attr("x", function(d) { return x(parseInt(d.count)) - 3; })
+          .attr("y", y.rangeBand() / 2)
+          .attr("dy", ".35em")
+          .attr("text-anchor", "end");
+
+    // ENTER + UPDATE
+    // Appending to the enter selection expands the update selection to include
+    // entering elements; so, operations on the update selection after appending to
+    // the enter selection will apply to both entering and updating nodes.
+      var barUpdate = d3.transition(bar)
+          .attr("transform", function(d) { return "translate(0," + (d.y0 = y(d.tag)) + ")"; })
+          .style("fill-opacity", 1);
+
+      barUpdate.select("rect")
+          .attr("width", function(d) { return x(parseInt(d.count)); });
+
+      barUpdate.select(".value")
+          .attr("x", function(d) { return x(parseInt(d.count)) - 3; })
+          .text(function(d) {return format(Math.round(parseInt(d.count))); });
+
+      var barExit = d3.transition(bar.exit())
+          .attr("transform", function(d) { return "translate(0," + (d.y0 + height) + ")"; })
+          .style("fill-opacity", 0)
+          .remove();
+
+      barExit.select("rect")
+          .attr("width", function(d) { return x(parseInt(d.count)); });
+
+      barExit.select(".value")
+          .attr("x", function(d) { return x(parseInt(d.count)) - 3; })
+          .text(function(d) { return format(parseInt(d.count)); });
+
+      d3.transition(svg).select(".x.axis")
+          .call(xAxis);    
+    }); 
   }
 
   function processTagCountJSON(data) {
-      //setTable(data, $('#tagRanking'));
+      setSVG(data, hashTableD3['lang-all']);
   }
 
   function processLangCountJSON(data) {
@@ -138,7 +245,7 @@ var hashTableD3 = {}
         //if (key < 3) {
           value = data[j];
           //console.log(value);
-          if(blackList.has(value.lang)) continue; 
+          if(blackList.has(value.lang) || !whiteList.has(value.lang)) continue; 
           setSVG(value.topTags, hashTableD3['lang-'+value.lang]);
         //}
       }
