@@ -119,14 +119,7 @@ var hashTableD3 = {}
                 .append("g")
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    svg.append("g").attr("class", "x axis");
-    svg.append("g")
-      .attr("class", "y axis")
-      .append("line")
-      .attr("class", "domain")
-      .attr("y2", height);
-
-    hashTableD3[id] = {'svg': svg, 'format': format, 'height': height, 'x': x, 'y': y, 'xAxis': xAxis};
+    hashTableD3[id] = {'svg': svg, 'format': format, 'height': height, 'x': x, 'y': y, 'xAxis': xAxis, 'visited':false};
   }
 
   //console.log(langFullName);
@@ -157,6 +150,14 @@ var hashTableD3 = {}
   //     mytab.settings.dataset.originalRecords = data;
   //     mytab.process();
   // }
+  function add_Y_Axis(svg, height){
+    svg.append("g").attr("class", "x axis");
+    svg.append("g")
+      .attr("class", "y axis")
+      .append("line")
+      .attr("class", "domain")
+      .attr("y2", height);
+  }
 
   function setSVG(data, varD3) {
     var svg = varD3['svg'];
@@ -164,10 +165,16 @@ var hashTableD3 = {}
     var height = varD3['height'];
     var x = varD3['x'];
     var y = varD3['y'];
-    var xAxis = varD3['xAxis']
+    var xAxis = varD3['xAxis'];
 
     d3.transition().duration(2000).each(function(){
       if(!data || data.length != 10) return;
+
+      /*Draw y-axis if SVG for the language is rendered for the first time*/
+      if(!varD3['visited']) {
+        add_Y_Axis(svg, height)
+        varD3['visited'] = true;
+      }
 
       var maxValue = 0;
       data.forEach(function(d){
