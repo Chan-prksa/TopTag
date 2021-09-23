@@ -26,6 +26,11 @@ var sparkOn = false;
 io.on('connection', function(socket) {
   socket.emit('server',{});
   socket.on('browser' ,function(data) {
+    exec("ps x | awk '/TweetTopTagByLanguage\.jar/'", function(err,out,code){
+      console.log("Callback of AWK")
+      console.log(out);
+      console.log(out ? true: false);
+    });
      console.log('Visited while sparkOn='+sparkOn);
      if(sparkOn) return;
      sparkOn = true;
