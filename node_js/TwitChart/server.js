@@ -12,7 +12,7 @@ var exec = require('exec');
 
 //Serve up static files
 //app.use(express.static(__dirname + '/public'));
-app.use('/dashboard', express.static('public'));
+app.use('/chart', express.static('public'));
 
 server.listen(port, function() {
   console.log('server listening at port %d', port)
