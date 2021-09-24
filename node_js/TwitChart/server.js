@@ -18,11 +18,28 @@ server.listen(port, function() {
   console.log('server listening at port %d', port)
 });
 
+
 //Handle Socket.io connections
 var blankCnt = 0;
 var pathToJAR = '../../java2/out/artifacts/TweetTopTagByLanguage_jar/';
 var startcmd = 'spark-submit --class TopTagByLanguage --master local[4] ' + pathToJAR + 'TweetTopTagByLanguage.jar';
 var sparkOn = false;
+
+function startSpark(){
+  exec(startcmd, function(err, out, code) {
+    if (err instanceof Error) throw err;
+    process.stderr.write(err);
+    //process.stdout.write(out);
+    //process.exit(code);
+  });
+}
+
+function terminateAndRerunSpark(){
+        exec("kill -9 $(ps x | awk '/TweetTopTagByLanguage\.jar/ { print $1}')", function(err, out, code){
+          startSpark();
+        });
+}
+
 io.on('connection', function(socket) {
   socket.emit('server',{});
   socket.on('browser' ,function(data) {
@@ -30,12 +47,10 @@ io.on('connection', function(socket) {
       console.log("Spark is running? ="+ (out ? "Yes": "No"))
       if(!out) {
         console.log("No instance of Spark running. Start a new process!")
-        exec(startcmd, function(err, out, code) {
-          if (err instanceof Error) throw err;
-          process.stderr.write(err);
-          //process.stdout.write(out);
-          //process.exit(code);
-        })
+        startSpark();
+      } else{
+        console.log("Spark is running. Terminate it and rerun");
+        terminateAndRerunSpark();
       }
     });
      console.log('Visited while sparkOn='+sparkOn);
