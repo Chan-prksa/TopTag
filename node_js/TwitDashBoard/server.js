@@ -27,20 +27,20 @@ io.on('connection', function(socket) {
   socket.emit('server',{});
   socket.on('browser' ,function(data) {
     exec("ps x | awk '/TweetTopTagByLanguage\.jar/ && !/awk/'", function(err,out,code){
-      console.log("Callback of AWK")
-      console.log(out);
-      console.log(out ? true: false);
+      console.log("Spark is running? ="+ (out ? "Yes": "No"))
+      if(!out) {
+        console.log("No instance of Spark running. Start a new process!")
+        exec(startcmd, function(err, out, code) {
+          if (err instanceof Error) throw err;
+          process.stderr.write(err);
+          //process.stdout.write(out);
+          //process.exit(code);
+        })
+      }
     });
      console.log('Visited while sparkOn='+sparkOn);
-     if(sparkOn) return;
-     sparkOn = true;
+     //if(sparkOn) return;
      exec('find /tmp -name "blockmgr*" | xargs rm -r', function(err,out,code){});
-     exec(startcmd, function(err, out, code) {
-       if (err instanceof Error) throw err;
-       process.stderr.write(err);
-       //process.stdout.write(out);
-       //process.exit(code);
-     })
   });
 
   socket.on('topTags', function(data) {
