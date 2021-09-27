@@ -12,6 +12,10 @@
     <pre id="json1"></pre>
     <pre id="json2"></pre>
 
+  <div>
+    <span id="msg-waiting" style="display: table;margin: 20px auto;">Please wait for 15 seconds for the charts to show.</span>
+  </div>
+
    <div style="margin: 20px auto; line-height: 20px;">
      <div class="subhead">Top Hashtags Globally</div>
      <svg id="lang-all" >
@@ -73,6 +77,7 @@
   };
 
 var hashTableD3 = {}
+var waiting = true; 
 
   // Intialization for the Global case
   var id = 'lang-all';
@@ -169,6 +174,12 @@ var hashTableD3 = {}
 
     d3.transition().duration(2000).each(function(){
       if(!data || data.length != 10) return;
+
+      /* We remove waiting message when a barchart is drawn for the first time.*/
+      if(waiting) {
+        $("#msg-waiting").remove();
+        waiting = false;
+      }
 
       /*Draw y-axis if SVG for the language is rendered for the first time*/
       if(!varD3['visited']) {
