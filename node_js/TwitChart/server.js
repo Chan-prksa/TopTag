@@ -23,7 +23,6 @@ server.listen(port, function() {
 var blankCnt = 0;
 var pathToJAR = '../../java2/out/artifacts/TweetTopTagByLanguage_jar/';
 var startcmd = 'spark-submit --class TopTagByLanguage --master local[4] ' + pathToJAR + 'TweetTopTagByLanguage.jar';
-var sparkOn = false;
 
 function startSpark(){
   exec(startcmd, function(err, out, code) {
@@ -53,28 +52,13 @@ io.on('connection', function(socket) {
         terminateAndRerunSpark();
       }
     });
-     console.log('Visited while sparkOn='+sparkOn);
-     //if(sparkOn) return;
+     console.log("Visited by Browser");
      exec('find /tmp -name "blockmgr*" | xargs rm -r', function(err,out,code){});
   });
 
   socket.on('topTags', function(data) {
-  	console.log('Get blank input ' + blankCnt + ' times');
-  	//var rnd = Math.random()*10 
-  	//console.log('Random value = ' + rnd);
-  	if(blankCnt > 3) {
-            console.log('Shutdown');
-  	        socket.emit('shutdown', {});
-            blankCnt = 0;
-            sparkOn = false;
-            socket.broadcast.emit('server',{});
-            return;
-  	}
-  	else if(!data.length) blankCnt++;
-
-    //console.log('topTags N=' + data.length );
+    console.log('topTags N=' + data.length );
     socket.broadcast.emit('topTags', data);
-
   });
 
   socket.on('topTagByLangs', function(data) {
