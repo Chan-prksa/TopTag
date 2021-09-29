@@ -7,7 +7,9 @@
   You are being redirected to a web page hosted on Amazon EC2. If the redirection does not work, pleace click this <a href="http://ec2-3-144-125-91.us-east-2.compute.amazonaws.com:3000/chart/">link</a>.
 <script>
   document.addEventListener("DOMContentLoaded", function(event) { 
-    window.location.replace("http://ec2-3-144-125-91.us-east-2.compute.amazonaws.com:3000/chart/");
+    setTimeout(function() {
+      window.location.replace("http://ec2-3-144-125-91.us-east-2.compute.amazonaws.com:3000/chart/");
+    }, 5000);
   });
   
 </script>
